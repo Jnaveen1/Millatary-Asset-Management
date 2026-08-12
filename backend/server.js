@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 
+const db = require('./config/db');
 const loggerMiddleware = require('./middlewares/loggerMiddleware');
 
 const authRoutes = require('./routes/authRoutes');
@@ -31,6 +32,19 @@ app.get('/api/health', (req, res) => {
     service: 'Military Asset Management System API',
     timestamp: new Date().toISOString(),
   });
+});
+
+// Temporary Diagnostic Endpoint (Render deployment database diagnosis)
+app.get('/api/debug/db', async (req, res) => {
+  try {
+    const result = await db.query('SELECT current_database(), current_schema(), current_user');
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Database connection diagnosis failed',
+      details: error.message,
+    });
+  }
 });
 
 // API Routes
